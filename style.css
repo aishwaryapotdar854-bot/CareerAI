@@ -1394,3 +1394,14 @@ button, input, select {
         ) !important;
     }
 }
+.student-card {
+    background: white;
+    padding: 20px;
+    margin: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px #ccc;
+}
+
+.student-card h3 {
+    color: #168AAD;
+}

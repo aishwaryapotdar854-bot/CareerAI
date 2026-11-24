@@ -317,4 +317,61 @@ window.addEventListener("DOMContentLoaded", function() {
         );
     }
 });
+async function fetchAssessments() {
 
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/assessments"
+        );
+
+        const result = await response.json();
+
+        const container =
+            document.getElementById("assessmentData");
+
+        container.innerHTML = "";
+
+        if (result.success) {
+
+            result.data.forEach(student => {
+
+                const card = document.createElement("div");
+
+                card.className = "student-card";
+
+                const name = document.createElement("h3");
+                name.textContent = student.student_name;
+
+                const education = document.createElement("p");
+                education.textContent = "Education: " + student.education;
+
+                const interest = document.createElement("p");
+                interest.textContent = "Interest: " + student.interest;
+
+                const goal = document.createElement("p");
+                goal.textContent = "Goal: " + student.goal;
+
+                const skills = document.createElement("p");
+
+                let skillArray = JSON.parse(student.skills);
+
+                skills.textContent =
+                    "Skills: " + skillArray.join(", ");
+
+                card.append(name, education, interest, goal, skills);
+
+                container.appendChild(card);
+
+            });
+
+        }
+
+    } catch (error) {
+
+        console.log("Fetch Error:", error);
+
+    }
+}
+
+fetchAssessments();

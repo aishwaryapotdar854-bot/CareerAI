@@ -98,10 +98,104 @@ app.get("/api/assessments", (req, res) => {
     });
 
 });
+const bcrypt = require("bcryptjs");
 
+app.post("/api/register", (req, res) => {
+
+console.log("REGISTER API HIT");
+
+    const {
+        full_name,
+        email,
+        mobile,
+        education,
+        password
+    } = req.body;
+
+    if (!full_name || !email || !mobile || !education || !password) {
+        return res.json({
+            success: false,
+            message: "All fields are required"
+        });
+    }
+
+    const checkSql = "SELECT id FROM students WHERE email = ?";
+
+    db.query(checkSql, [email], (err, result) => {
+
+        if (err) {
+            return res.json({
+                success: false,
+                message: "Database error"
+            });
+        }
+
+        if (result.length > 0) {
+            return res.json({
+                success: false,
+                message: "Email already registered"
+            });
+        }
+
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
+
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: "Password hashing failed"
+                });
+            }
+
+            const sql = `
+                INSERT INTO students
+                (full_name, email, mobile, education, password)
+                VALUES (?, ?, ?, ?, ?)
+            `;
+
+            db.query(
+                sql,
+                [full_name, email, mobile, education, hashedPassword],
+                (err, result) => {
+
+                    if (err) {
+                        return res.json({
+                            success: false,
+                            message: "Registration failed"
+                        });
+                    }
+
+                    res.json({
+                        success: true,
+                        message: "Student Registered Successfully!"
+                    });
+
+                }
+            );
+
+        });
+
+    });
+
+});
 // Start Server
 const PORT = 5000;
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+});
+
+// GET Assessment Records
+app.get("/api/assessments", (req, res) => {
+    const sql = "SELECT * FROM assessments";
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log("Fetch Error:", err);
+            return res.status(500).json({
+                message: "Data Fetch Failed"
+            });
+        }
+
+        res.json(result);
+    });
 });
